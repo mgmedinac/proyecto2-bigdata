@@ -53,17 +53,16 @@
 ## Estructura del Repositorio
 
 ```
-proyecto2-bigdata/
-├── 01-s3-datalake/        # Ingesta a S3 (raw/) + setup buckets
-├── 02-rds-database/       # Esquema MariaDB (metadata)
-├── 03-ec2-storage/        # Configuración EC2 (CSVs históricos)
-├── 04-glue-etl/           # Glue ETL: raw → trusted (Parquet)
-├── 05-glue-crawler-emr/   # Glue Crawler + Hive catalog
-├── 06-athena-analytics/   # Queries Athena (5 preguntas negocio)
-├── 07-pyspark-analytics/  # Análisis descriptivo con PySpark
-├── 08-streamlit-app/      # Dashboard Streamlit + API Gateway
-├── openaq_location_3163445_measurments.csv   # Dataset original
-└── README.md              # Este archivo
+├── README.md                                # Guía general de arquitectura
+├── .gitignore                               # Configurado (sin .DS_Store)
+├── punto-1-caso-de-estudio/                 # Definición del problema y preguntas de negocio
+├── punto-2-fuentes-de-datos/                # RDS MariaDB, EC2, URL (dataset)
+├── punto-3-ingesta-datalake/                # Ingesta automática a S3 (raw/trusted/refined)
+├── punto-4-procesamiento-spark-glue/        # Glue ETL + Spark (raw → trusted)
+├── punto-5-catalogacion-glue-hive/          # Glue Crawler + Hive catalogación
+├── punto-6-consultas-sql/                   # Athena + Hive + SparkSQL queries
+├── punto-7-analisis-pyspark/               # Análisis descriptivo con PySpark
+└── punto-8-visualizacion-api/              # Streamlit dashboard + Lambda API
 ```
 
 ## Stack Tecnológico
@@ -84,34 +83,34 @@ proyecto2-bigdata/
 ### 1. Ingesta a S3
 
 ```bash
-cd 01-s3-datalake
-chmod +x s3_setup.sh
-./s3_setup.sh openaq-datalake
+cd punto-3-ingesta-datalake
+chmod +x ingest.sh
+./ingest.sh openaq-datalake
 
 pip install boto3
-python ingest_to_s3_raw.py ../openaq_location_3163445_measurments.csv
+python ingest_all_sources.py ../punto-2-fuentes-de-datos/openaq_location_3163445_measurments.csv
 ```
 
 ### 2. Base de Datos (RDS MariaDB)
 
 ```sql
-SOURCE 02-rds-database/schema.sql;
+SOURCE punto-2-fuentes-de-datos/mariadb_schema.sql;
 ```
 
 ### 3. ETL con Glue
 
-Subir `04-glue-etl/glue_raw_to_trusted.py` a AWS Glue Jobs y ejecutar.
+Subir `punto-4-procesamiento-spark-glue/pyspark_process.py` a AWS Glue Jobs y ejecutar.
 
 ### 4. Consultas Athena
 
-Ejecutar las queries en `06-athena-analytics/queries_business.sql` desde la consola Athena.
+Ejecutar las queries en `punto-6-consultas-sql/athena_queries.sql` desde la consola Athena.
 
 ### 5. Dashboard Streamlit
 
 ```bash
-cd 08-streamlit-app
+cd punto-8-visualizacion-api
 pip install -r requirements.txt
-streamlit run app.py
+streamlit run streamlit_app.py
 ```
 
 ## Resultados Esperados
